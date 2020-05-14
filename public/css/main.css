@@ -1,4 +1,51 @@
-.root {
-    padding: 40px 15px;
-    text-align: center;
+html,
+body {
+    padding: 5px 5px 0px 5px;
+}
+
+.card .card-header-custom,
+.card.bg-custom,
+.card.card-rotate.bg-custom .front,
+.card.card-rotate.bg-custom .back {
+    background: rgb(48, 237, 255);
+    background: linear-gradient(60deg, rgba(48, 237, 255, 1) 0%, rgba(0, 117, 255, 1) 100%);
+}
+
+#grid-container {
+    padding: 0px;
+}
+
+#grid {
+    margin: auto;
+    margin-top: 10px;
+}
+
+.wall {
+    background: #155559
+}
+
+table td {
+    border: solid #8787fa 0.1px;
+}
+
+.scale-up-center {
+    animation: scale-up-center .5s ease-in-out backwards;
+    border: solid whitesmoke 0.1px;
+}
+
+@keyframes scale-up-center {
+    0% {
+        transform: scale(0);
+        border-radius: 100%;
+    }
+    25% {
+        /* background-color: #45474a; */
+    }
+    75% {
+        transform: scale(1.2);
+        /* background-color: #1a1b1c; */
+    }
+    100% {
+        transform: scale(1);
+    }
 }
