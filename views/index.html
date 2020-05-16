@@ -23,15 +23,30 @@
 
     <div class="card" style="margin-bottom: 8px;">
         <div class="card-header card-header-custom text-center" id="">
-            <div role="group">
-                <p class="h3" style="margin-top: 0px;"> Path Finding Visualizer </p>
-                <button type="button" class="btn btn-secondary" onclick="resetGrid()">Clear grid</button>
-                <button type="button " class="btn btn-secondary " onclick="printConfig()">Prinf Config</button>
-                <!-- <button type="button " class="btn btn-secondary ">Middle</button>
-                <button type="button " class="btn btn-secondary ">Right</button>
-                <button type="button " class="btn btn-secondary ">Left</button>
-                <button type="button " class="btn btn-secondary ">Middle</button>
-                <button type="button " class="btn btn-secondary ">Right</button> -->
+            <p class="h3" style="margin-top: 0px;"> Path Finding Visualizer </p>
+            <div class="d-flex justify-content-center">
+                <div>
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle mx-3" type="button" data-toggle="dropdown" id="algorithmDropbox">Algorithm
+                                <span class="caret"></span>
+                            </button>
+                        <ul class="dropdown-menu">
+                            <li><a href="#" onclick="selectAlgorithm('bfs')">BFS</a></li>
+                        </ul>
+                    </div>
+
+                </div>
+                <div>
+                    <button type="button" class="btn btn-success mx-3" onclick="solveMaze()">Visualize</button>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-default mx-3" onclick="generateMaze()">Generate Maze</button>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-rose mx-3" onclick="resetGrid()">Clear grid</button>
+                </div>
+
+
             </div>
         </div>
         <div class="card-body" id="grid-container">
@@ -53,7 +68,7 @@
     <script src="/js/plugins/moment.min.js "></script>
 
     <!-- Place this tag in your head or just before your close body tag. -->
-    <script async defer src="https://buttons.github.io/buttons.js "></script>
+    <!-- <script async defer src="https://buttons.github.io/buttons.js "></script> -->
     <!-- Control Center for Material Kit: parallax effects, scripts for the example pages etc -->
     <script src="/js/material-kit.min.js?v=2.0.4 " type="text/javascript "></script>
 

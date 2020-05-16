@@ -1,12 +1,15 @@
 html,
 body {
-    padding: 5px 5px 0px 5px;
+    padding: 0px 5px 0px 5px;
 }
 
 .card .card-header-custom,
 .card.bg-custom,
 .card.card-rotate.bg-custom .front,
 .card.card-rotate.bg-custom .back {
+    width: 100vw;
+    padding-left: -50px;
+    margin-left: -8px;
     background: rgb(48, 237, 255);
     background: linear-gradient(60deg, rgba(48, 237, 255, 1) 0%, rgba(0, 117, 255, 1) 100%);
 }
@@ -21,31 +24,36 @@ body {
 }
 
 .wall {
-    background: #155559;
-    border: solid whitesmoke 0.1px;
+    /* background: #155559; */
+    /* background: #1d1033; */
+    background: #01041d;
+    border: solid #000000 0.1px;
+    /* border: solid whitesmoke 0.1px; */
 }
 
 .start {
-    background-color: green;
-    border: solid whitesmoke 0.1px;
+    /* background-color: white; */
+    background-image: url("/left-and-right-arrows.svg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
 }
 
 .end {
-    background-color: red;
-    border: solid whitesmoke 0.1px;
+    /* background-color: white; */
+    background-image: url("/bullseye.svg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
 }
 
 table td {
     border: solid #8787fa 0.1px;
 }
 
-.visited {
-    background-color: blue;
-}
-
 .scale-up-center {
     animation: scale-up-center .5s ease-in-out backwards;
-    border: solid whitesmoke 0.1px;
+    /* border: solid #155559 0.1px; */
 }
 
 @keyframes scale-up-center {
@@ -67,6 +75,11 @@ table td {
 
 .visited-animation {
     animation: visited-animation 1s ease-in-out backwards;
+    /* border: solid whitesmoke 0.1px; */
+}
+
+.visited {
+    background-color: #ae80ff;
     border: solid whitesmoke 0.1px;
 }
 
@@ -76,13 +89,18 @@ table td {
         border-radius: 100%;
     }
     25% {
-        /* background-color: #45474a; */
+        background-color: #45474a;
     }
     75% {
         transform: scale(1.2);
-        /* background-color: #1a1b1c; */
     }
     100% {
         transform: scale(1);
     }
+}
+
+.path {
+    background-color: rgb(61, 125, 209);
+    /* background-color: rgb(80, 228, 178); */
+    border: solid whitesmoke 0.1px;
 }

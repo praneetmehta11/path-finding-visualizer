@@ -7,8 +7,8 @@ class Config {
         this.gridContainerWidth = 0;
         this.gridHeight = 0;
         this.gridWidth = 0;
-        this.nodeHeight = 30;
-        this.nodewidth = 30;
+        this.nodeHeight = 25;
+        this.nodewidth = 25;
         this.numberOfRows = 0;
         this.numberOfColumns = 0;
         this.startPoint = {
@@ -17,26 +17,10 @@ class Config {
         }
         this.endPoint = {
             x: 5,
-            y: 30
+            y: 13
         }
     }
-    validate(x, y) {
-        return ((x >= 0 && x < this.numberOfRows) && (y >= 0 && y < this.numberOfColumns));
-    }
 }
-var isMouseDown = false
-var moveStart = false
-var moveEnd = false
-var lastStart = {
-    x: 0,
-    y: 0,
-};
-var lastEnd = {
-    x: 0,
-    y: 0,
-};
-var grid = [];
-
 class Node {
     constructor(node) {
         this.node = node
@@ -56,14 +40,21 @@ class Node {
             this.end = true;
             node.addClass('end');
         }
+        this.previous = null;
     }
-
     reset() {
         this.isWall = false
         this.visited = false
         this.start = false
         this.end = false
+        this.previous = null
         this.node.removeClass()
+    }
+    resetForMove() {
+        this.visited = false
+        this.previous = null
+        this.node.removeClass()
+        this.reDraw()
     }
 
     reDraw() {
@@ -82,18 +73,21 @@ class Node {
         this.node.height(config.nodeHeight);
         this.node.width(config.nodewidth);
     }
-
     initEventListeners() {
         this.node.mousedown(() => {
+            if (Animator.isRunning) return
             this.mousedown();
         })
         this.node.mouseup(() => {
+            if (Animator.isRunning) return
             this.mouseup();
         })
         this.node.mouseenter(() => {
+            if (Animator.isRunning) return
             this.mouseenter();
         })
         this.node.mouseout(() => {
+            if (Animator.isRunning) return
             this.mouseout();
         })
     }
@@ -107,7 +101,7 @@ class Node {
             moveEnd = true;
             return;
         }
-        if (!this.isWall) {
+        if (!this.isWall || this.visited) {
             this.isWall = true;
             this.addWall();
         } else {
@@ -115,7 +109,6 @@ class Node {
             this.removeWall();
         }
     }
-
     mouseup(node) {
         if (moveStart) {
             if (this.end) {
@@ -156,8 +149,6 @@ class Node {
         moveStart = false
         moveEnd = false
     }
-
-
     mouseenter(node) {
         if (this.start || this.end) return;
         if (isMouseDown) {
@@ -166,6 +157,7 @@ class Node {
                 var oldY = config.startPoint.y;
                 var oldNode = grid[oldX][oldY];
                 oldNode.reset();
+                solveMaze({ x: this.x, y: this.y }, config.endPoint)
                 this.node.addClass('start');
                 return;
             }
@@ -174,6 +166,7 @@ class Node {
                 var oldY = config.endPoint.y;
                 var oldNode = grid[oldX][oldY];
                 oldNode.reset();
+                solveMaze(config.startPoint, { x: this.x, y: this.y })
                 this.node.addClass('end');
                 return;
             }
@@ -199,22 +192,326 @@ class Node {
         }
         if (moveStart || moveEnd) this.reDraw();
     }
+
     addWall() {
+        this.node.removeClass()
         this.node.addClass('wall')
-        this.node.addClass("scale-up-center");
     }
     removeWall() {
-        this.node.removeClass('wall')
-        this.node.removeClass("scale-up-center");
+        this.node.removeClass()
     }
 
     markVisited() {
         this.node.removeClass();
+        if (this.start) {
+            this.node.addClass('start')
+        }
         this.node.addClass('visited')
-        this.node.addClass("visited-animation");
+    }
+
+    highlightPath() {
+        this.node.removeClass();
+        this.node.addClass('path')
+        if (this.start)
+            this.node.addClass('start')
+        if (this.end)
+            this.node.addClass('end')
     }
 }
+
+class Animator {
+    static isRunning = false
+    constructor() {
+        this.queue = []
+    }
+    push(node) {
+        this.queue.push(node)
+    }
+    start() {
+        Animator.isRunning = true;
+        disable()
+    }
+    end() {
+        Animator.isRunning = false;
+        enable()
+        this.queue = []
+    }
+    static stopAllAnimation() {
+        Animator.isRunning = false;
+    }
+    drawWalls() {
+        this.queue.forEach((node, i) => {
+            node.addWall();
+        })
+        this.queue = []
+    }
+    animateWalls(speed) {
+        this.start();
+        var promises = []
+        this.queue.forEach((node, i) => {
+            let promise = new Promise((res, rej) => {
+                setTimeout(() => {
+                    if (!Animator.isRunning) return
+                    node.addWall();
+                    node.node.addClass("scale-up-center");
+                    res();
+                }, speed * i);
+            })
+            promises.push(promise)
+        })
+        Promise.all(promises).then(() => {
+            this.end();
+        })
+    }
+    drawVisited() {
+        this.queue.forEach((node, i) => {
+            node.markVisited();
+        })
+        this.queue = []
+    }
+    animateVisited(speed) {
+        this.start()
+        var promises = []
+        this.queue.forEach((node, i) => {
+            let promise = new Promise((res, rej) => {
+                setTimeout(() => {
+                    node.markVisited()
+                    node.node.addClass("visited-animation");
+                    res();
+                }, speed * i);
+            })
+            promises.push(promise)
+        });
+        this.queue = []
+        return new Promise((res, rej) => {
+            Promise.all(promises).then(() => {
+                this.end();
+                res()
+            })
+        })
+    }
+    drawPath() {
+        this.queue.forEach((node, i) => {
+            node.highlightPath();
+        })
+        this.queue = []
+    }
+    animatePath(speed) {
+        this.start();
+        var promises = []
+        this.queue.forEach((node, i) => {
+            let promise = new Promise((res, rej) => {
+                setTimeout(() => {
+                    if (!Animator.isRunning) return
+                    node.highlightPath()
+                    node.node.addClass("scale-up-center");
+                    res();
+                }, speed * i);
+            })
+            promises.push(promise)
+        })
+        Promise.all(promises).then(() => {
+            this.end();
+        })
+        this.queue.forEach((node, i) => {
+            setTimeout(() => {
+
+            }, speed * i);
+        })
+        this.queue = []
+    }
+}
+
+class Algorithm {
+    constructor(grid) {
+        this.grid = grid
+        this.height = config.numberOfRows;
+        this.width = config.numberOfColumns
+    }
+    init() {
+        this.height = config.numberOfRows;
+        this.width = config.numberOfColumns
+    }
+    isValid(x, y) {
+        return ((x >= 0 && x < this.height) && (y >= 0 && y < this.width));
+    }
+    bfs(startPoint, endPoint) {
+        let src = this.grid[startPoint.x][startPoint.y]
+        let dest = this.grid[endPoint.x][endPoint.y]
+        let queue = [src]
+        let current, x, y, next
+        let R = [-1, 0, 1, 0];
+        let C = [0, -1, 0, 1];
+        var seachAnimator = new Animator();
+        while (queue.length != 0) {
+            current = queue.shift()
+            if (current.visited) continue;
+            current.visited = true
+            if (current.x == dest.x && current.y == dest.y) {
+                break;
+            }
+            seachAnimator.push(current);
+            for (let i = 0; i < 4; ++i) {
+                x = current.x + R[i]
+                y = current.y + C[i]
+                if (this.isValid(x, y)) {
+                    next = this.grid[x][y]
+                    if (!next.visited && !next.isWall && !(next.x == src.x && next.y == src.y)) {
+                        next.previous = current;
+                        queue.push(next)
+                    }
+                }
+            }
+        }
+        let path = [dest]
+        let node
+        let pathAnimator = new Animator();
+        if (dest.visited) {
+            node = dest.previous;
+            while (node.previous) {
+                path.push(node);
+                node = node.previous;
+            }
+            path.push(src)
+            path.reverse();
+            path.forEach((node) => {
+                pathAnimator.push(node);
+            })
+        }
+        return [seachAnimator, pathAnimator]
+    }
+
+    execute(algo, startPoint, endPoint) {
+        if (algo == 'bfs') return this.bfs(startPoint, endPoint);
+    }
+}
+
+function random(max) {
+    return Math.floor(Math.random() * max);
+}
+
+class RecursiveDivision {
+    constructor(grid) {
+        this.grid = grid
+        this.HORIZONTAL = 1
+        this.VERTICAL = 2;
+        this.animator = new Animator();
+    }
+    drawBoundaryWalls(w, h) {
+        for (let i = 0; i < w; ++i) {
+            grid[0][i].isWall = true;
+            this.animator.push(grid[0][i]);
+        }
+        for (let i = 0; i < h; ++i) {
+            grid[i][w - 1].isWall = true;
+            this.animator.push(grid[i][w - 1]);
+        }
+        for (let i = w - 1; i >= 0; --i) {
+            grid[h - 1][i].isWall = true;
+            this.animator.push(grid[h - 1][i]);
+        }
+        for (let i = h - 1; i >= 0; --i) {
+            grid[i][0].isWall = true;
+            this.animator.push(grid[i][0]);
+        }
+    }
+    divide(rowStart, rowEnd, colStart, colEnd, orientation) {
+        if (rowEnd < rowStart || colEnd < colStart) return;
+        if (orientation == this.HORIZONTAL) {
+            let possibleRows = [];
+            for (let i = rowStart; i <= rowEnd; i += 2) {
+                possibleRows.push(i);
+            }
+            let possibleCols = [];
+            for (let i = colStart - 1; i <= colEnd + 1; i += 2) {
+                possibleCols.push(i);
+            }
+            let randomRowIndex = random(possibleRows.length);
+            let randomColIndex = random(possibleCols.length);
+            let currentRow = possibleRows[randomRowIndex];
+            let passage = possibleCols[randomColIndex];
+            for (let i = colStart - 1; i <= colEnd + 1; ++i) {
+                let current = i
+
+                if (current != passage) {
+                    let node = grid[currentRow][current]
+                    if (!node.start && !node.end) {
+                        node.isWall = true;
+                        this.animator.push(node);
+                    }
+                }
+            }
+            if (currentRow - 2 - rowStart > colEnd - colStart) {
+                this.divide(rowStart, currentRow - 2, colStart, colEnd, orientation);
+            } else {
+                this.divide(rowStart, currentRow - 2, colStart, colEnd, this.VERTICAL);
+            }
+            if (rowEnd - (currentRow + 2) > colEnd - colStart) {
+                this.divide(currentRow + 2, rowEnd, colStart, colEnd, orientation);
+            } else {
+                this.divide(currentRow + 2, rowEnd, colStart, colEnd, this.VERTICAL);
+            }
+        } else {
+            let possibleRows = [];
+            for (let i = rowStart - 1; i <= rowEnd + 1; i += 2) {
+                possibleRows.push(i);
+            }
+            let possibleCols = [];
+            for (let i = colStart; i <= colEnd; i += 2) {
+                possibleCols.push(i);
+            }
+            let randomColIndex = random(possibleCols.length);
+            let randomRowIndex = random(possibleRows.length);
+            let currentCol = possibleCols[randomColIndex];
+            let passage = possibleRows[randomRowIndex];
+            for (let i = rowStart - 1; i <= rowEnd + 1; ++i) {
+                let current = i;
+                if (current != passage && !current.start && !current.end) {
+                    let node = grid[current][currentCol]
+                    if (!node.start && !node.end) {
+                        node.isWall = true;
+                        this.animator.push(node);
+                    }
+                }
+            }
+            if (rowEnd - rowStart > currentCol - 2 - colStart) {
+                this.divide(rowStart, rowEnd, colStart, currentCol - 2, this.HORIZONTAL);
+            } else {
+                this.divide(rowStart, rowEnd, colStart, currentCol - 2, orientation);
+            }
+            if (rowEnd - rowStart > colEnd - (currentCol + 2)) {
+                this.divide(rowStart, rowEnd, currentCol + 2, colEnd, this.HORIZONTAL);
+            } else {
+                this.divide(rowStart, rowEnd, currentCol + 2, colEnd, orientation);
+            }
+        }
+    }
+    generate() {
+        var w = config.numberOfColumns
+        var h = config.numberOfRows
+        this.drawBoundaryWalls(w, h);
+        this.divide(2, h - 3, 2, w - 3, this.HORIZONTAL);
+        return this.animator
+    }
+}
+
+
+var isMouseDown = false
+var moveStart = false
+var moveEnd = false
+var lastStart = {
+    x: 0,
+    y: 0,
+};
+var lastEnd = {
+    x: 0,
+    y: 0,
+};
+var grid = [];
 var config = new Config();
+var algorithm = new Algorithm(grid);
+var isSolved = false
+var selectedAlgorithm = null
 
 function gatherConfigDetails() {
     config.windowHeight = $(window).height();
@@ -236,11 +533,6 @@ function gatherConfigDetails() {
     lastEnd.y = config.endPoint.y;
 }
 
-function init() {
-    createGrid();
-}
-
-
 function createGrid() {
     $('#grid-container').height(config.gridContainerHeight)
     var table = $("#grid");
@@ -257,9 +549,11 @@ function createGrid() {
         grid.push(gridRow);
         table.append(row);
     }
+
 }
 
 function resetGrid() {
+    Animator.stopAllAnimation();
     for (let i = 0; i < config.numberOfRows; ++i) {
         for (let j = 0; j < config.numberOfColumns; ++j) {
             let node = grid[i][j];
@@ -273,13 +567,16 @@ function resetGrid() {
             node.reDraw()
         }
     }
+    isMouseDown = false
+    moveStart = false
+    moveEnd = false
+    isSolved = false
+
 }
 
-$(function() {
-    console.log(navigator.userAgent);
-    gatherConfigDetails();
-    init();
-    console.log(config)
+function init() {
+    createGrid();
+    algorithm.init();
     $(document).mouseup(() => {
         isMouseDown = false
         moveStart = false
@@ -295,37 +592,75 @@ $(function() {
         oldNode.start = true
         oldNode.reDraw();
     })
-});
-
-function printConfig() {
-    console.log(config);
 }
 
+$(function() {
+    gatherConfigDetails();
+    init();
+});
 
+function generateMaze() {
+    var recursiveDivision = new RecursiveDivision(grid);
+    var animator = recursiveDivision.generate();
+    animator.animateWalls(5)
+}
 
-function bfs() {
-    let queue = [grid[config.startPoint.x][config.startPoint.y]]
-    grid[config.startPoint.x][config.startPoint.y].visited = true
-    let current, x, y, next
-    let R = [1, 1, 1, 0, 0, 1, 1, 1]
-    let C = [-1, 0, 1, -1, 1, -1, 0, 1]
-    while (queue.length != 0) {
-        current = queue.shift()
-        if (current.x == config.endPoint.x && current.y == config.endPoint.y) {
-            console.log("path mil gaya re baba");
-            return;
+function solveMaze(startPoint = null, endPoint = null) {
+    if (Animator.isRunning) return
+    if (startPoint == null && endPoint == null) {
+        if (!selectedAlgorithm) {
+            alert("Bhaiya algorithm to select karlo yar tum pehle");
+            return
         }
-        for (let i = 0; i < 8; ++i) {
-            x = current.x + R[i]
-            y = current.y + C[i]
-            if (config.validate(x, y)) {
-                next = grid[x][y]
-                if (!next.visited && !next.isWall && !next.start) {
-                    next.visited = true
-                    next.markVisited()
-                    queue.push(next)
-                }
+        let animators = algorithm.execute(selectedAlgorithm, config.startPoint, config.endPoint);
+        console.log(animators)
+        animators[0].animateVisited(10).then((result) => {
+            animators[1].animatePath(100)
+        })
+        isSolved = true;
+    } else {
+        if (!isSolved) return;
+        for (let i = 0; i < config.numberOfRows; ++i) {
+            for (let j = 0; j < config.numberOfColumns; ++j) {
+                grid[i][j].resetForMove();
             }
         }
+        let src = this.grid[startPoint.x][startPoint.y]
+        let dest = this.grid[endPoint.x][endPoint.y]
+        let startWasWall = false
+        if (src.isWall) {
+            startWasWall = true
+            src.isWall = false
+        }
+        let endWasWall = false
+        if (dest.isWall) {
+            endWasWall = true
+            dest.isWall = false
+        }
+        let animators = algorithm.execute(selectedAlgorithm, startPoint, endPoint);
+        animators[0].drawVisited()
+        animators[1].drawPath()
+        if (startWasWall) {
+            src.isWall = true;
+            src.reDraw();
+        }
+        if (endWasWall) {
+            dest.isWall = true;
+            dest.reDraw();
+        }
+
     }
+}
+
+function selectAlgorithm(name) {
+    selectedAlgorithm = name;
+    $("#algorithmDropbox").html(`Algorithm : ${name} <span class="caret"></span>`)
+}
+
+function disable() {
+    $('button').attr('disabled', true);
+}
+
+function enable() {
+    $('button').attr('disabled', false);
 }
