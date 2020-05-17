@@ -67,13 +67,13 @@ class Node {
 
     setRandomWeight() {
         this.weight = Math.floor(Math.random() * (config.maxWeight - config.minWeight) + config.minWeight)
-        if (this.isWall || this.start || this.end) return
+        if (this.start || this.end) return
         this.node.html(this.weight);
     }
 
     removeWeight() {
         this.weight = 1;
-        if (this.isWall || this.start || this.end) return
+        if (this.start || this.end) return
         this.node.html('');
     }
 
@@ -838,6 +838,7 @@ function resetGrid() {
 
 function clearPath() {
     Animator.stopAllAnimation();
+    isSolved = false
     for (let i = 0; i < config.numberOfRows; ++i) {
         for (let j = 0; j < config.numberOfColumns; ++j) {
             let node = grid[i][j];
