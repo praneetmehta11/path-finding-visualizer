@@ -21,6 +21,10 @@ class Config {
             x: 5,
             y: 13
         }
+        this.pathAnimationSpeed = 100
+        this.visitedAnimationSpeed = 10
+        this.wallAnimationSpeed = 5
+        this.isAnimationAllowed = true
     }
 }
 class Node {
@@ -887,7 +891,7 @@ function generateMaze(algo) {
         generator = new RandomMaze(grid);
     }
     animator = generator.generate();
-    animator.animateWalls(5)
+    animator.animateWalls(config.wallAnimationSpeed)
 }
 
 function solveMaze(startPoint = null, endPoint = null) {
@@ -900,8 +904,8 @@ function solveMaze(startPoint = null, endPoint = null) {
         }
         let animators = algorithm.execute(selectedAlgorithm, config.startPoint, config.endPoint);
         console.log(animators)
-        animators[0].animateVisited(10).then((result) => {
-            animators[1].animatePath(100)
+        animators[0].animateVisited(config.visitedAnimationSpeed).then((result) => {
+            animators[1].animatePath(config.pathAnimationSpeed)
         })
         isSolved = true;
     } else {
@@ -980,3 +984,25 @@ function setRandomWeight() {
         }
     }
 }
+
+function updateSpeed(val) {
+    //val = Math.abs(val)
+    console.log(val)
+    config.wallAnimationSpeed = 1
+    config.visitedAnimationSpeed = 2
+    config.pathAnimationSpeed = 10
+}
+var slider = document.getElementById('sliderRegular');
+
+slider = noUiSlider.create(slider, {
+    start: 50,
+    connect: [true, false],
+    range: {
+        'min': 1,
+        'max': 5
+    }
+});
+slider.off('.one');
+slider.on('update', function() {
+    updateSpeed(Math.round(slider.get()));
+});

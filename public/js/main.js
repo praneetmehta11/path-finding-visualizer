@@ -21,6 +21,9 @@ class Config {
             x: 5,
             y: 13
         }
+        this.pathAnimationSpeed = 5
+        this.visitedAnimationSpeed = 20
+        this.wallAnimationSpeed = 60
     }
 }
 class Node {
@@ -868,6 +871,18 @@ function init() {
         oldNode.start = true
         oldNode.reDraw();
     })
+    slider = noUiSlider.create(slider, {
+        start: -2,
+        connect: [true, false],
+        range: {
+            'min': -5,
+            'max': -1
+        }
+    });
+    slider.off('.one');
+    slider.on('change', function() {
+        updateSpeed(Math.round(slider.get()));
+    });
 }
 
 $(function() {
@@ -886,7 +901,7 @@ function generateMaze(algo) {
         generator = new RandomMaze(grid);
     }
     animator = generator.generate();
-    animator.animateWalls(5)
+    animator.animateWalls(config.wallAnimationSpeed)
 }
 
 function solveMaze(startPoint = null, endPoint = null) {
@@ -898,9 +913,9 @@ function solveMaze(startPoint = null, endPoint = null) {
             return
         }
         let animators = algorithm.execute(selectedAlgorithm, config.startPoint, config.endPoint);
-        console.log(animators)
-        animators[0].animateVisited(10).then((result) => {
-            animators[1].animatePath(100)
+        console.log(config, "sa")
+        animators[0].animateVisited(config.visitedAnimationSpeed).then((result) => {
+            animators[1].animatePath(config.pathAnimationSpeed)
         })
         isSolved = true;
     } else {
@@ -949,10 +964,15 @@ function selectAlgorithm(algo) {
 
 function disable() {
     $('button').attr('disabled', true);
+    $('#slider').attr('disabled', true);
+
 }
 
 function enable() {
     $('button').attr('disabled', false);
+    $('#slider').attr('disabled', false);
+
+
 }
 
 function setRandomWeight() {
@@ -979,3 +999,36 @@ function setRandomWeight() {
         }
     }
 }
+
+function updateSpeed(val) {
+    slider.set(val)
+    val = Math.abs(val)
+    console.log(val, config)
+    if (val == 1) {
+        config.wallAnimationSpeed = 0
+        config.visitedAnimationSpeed = 1
+        config.pathAnimationSpeed = 5
+    }
+    if (val == 2) {
+        config.wallAnimationSpeed = 5
+        config.visitedAnimationSpeed = 20
+        config.pathAnimationSpeed = 60
+    }
+    if (val == 3) {
+        config.wallAnimationSpeed = 100
+        config.visitedAnimationSpeed = 50
+        config.pathAnimationSpeed = 150
+    }
+    if (val == 4) {
+        config.wallAnimationSpeed = 200
+        config.visitedAnimationSpeed = 300
+        config.pathAnimationSpeed = 400
+    }
+    if (val == 5) {
+        config.wallAnimationSpeed = 300
+        config.visitedAnimationSpeed = 350
+        config.pathAnimationSpeed = 500
+    }
+
+}
+var slider = document.getElementById('slider');
