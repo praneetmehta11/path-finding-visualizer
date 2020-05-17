@@ -15,21 +15,22 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Sofia">
     <!-- Material Kit CSS -->
     <link href="/css/material-kit.min.css?v=2.0.4" rel="stylesheet" />
-    <link href="/css/main.css" rel="stylesheet" />
+    <link href="/css/main2.css" rel="stylesheet" />
 
 </head>
 
 <body>
-
-    <div class="card" style="margin-bottom: 8px;">
-        <div class="card-header card-header-custom text-center" id="title">
-            <p> Path Finding Visualizer </p>
-            <div class="row d-flex justify-content-center">
+    <nav class="navbar navbar-expand-lg nav justify-content-center" id="title">
+        <p>Path Finding Visualizer</p>
+    </nav>
+    <div class="mycard">
+        <div class="mybody" id="grid-container">
+            <div class="row d-flex justify-content-center" id="toolbar">
                 <div>
                     <div class="dropdown">
                         <button class="btn btn-primary dropdown-toggle " type="button" data-toggle="dropdown" id="algorithmDropbox">Algorithm
-                                            <span class="caret"></span>
-                                        </button>
+                                                <span class="caret"></span>
+                                            </button>
                         <ul class="dropdown-menu">
                             <li><a href="#" onclick="selectAlgorithm('bfs')">BFS</a></li>
                             <li><a href="#" onclick="selectAlgorithm('dfs')">DFS</a></li>
@@ -52,8 +53,8 @@
                 <div>
                     <div class="dropdown">
                         <button class="btn btn-primary dropdown-toggle " type="button" data-toggle="dropdown" id="mazeDropbox">Maze Algorithms
-                                <span class="caret"></span>
-                            </button>
+                                    <span class="caret"></span>
+                                </button>
                         <ul class="dropdown-menu">
                             <li><a href="#" onclick="generateMaze('recursive')">Recursive Divison</a></li>
                             <li><a href="#" onclick="generateMaze('random')">Random</a></li>
@@ -68,13 +69,13 @@
                 <div>
                     <button type="button" class="btn btn-info mx-2" onclick="clearPath()">Clear Path</button>
                 </div>
+
             </div>
-        </div>
-        <div class="card-body" id="grid-container">
             <table id="grid"></table>
         </div>
     </div>
-    <div class="copyright text-center">
+
+    <div class="copyright text-center" style="margin: 8px 0px 5px 0px;">
         &copy;
         <script>
             document.write(new Date().getFullYear())
@@ -94,7 +95,7 @@
     <script src="/js/material-kit.min.js?v=2.0.4 " type="text/javascript "></script>
 
     <script src="/js/priorityQueue.js " type="text/javascript "></script>
-    <script src="/js/main.js " type="text/javascript "></script>
+    <script src="/js/main2.js " type="text/javascript "></script>
 
 
 </body>

@@ -1,27 +1,41 @@
 html,
 body {
-    padding: 0px 5px 0px 5px;
+    padding: 0px 0px 0px 0px;
+    overflow: hidden;
 }
 
-.card .card-header p {
-    font-size: 35px;
-    margin-top: 5px;
-    margin-bottom: 20px;
-}
-
-.card .card-header-custom,
-.card.bg-custom,
-.card.card-rotate.bg-custom .front,
-.card.card-rotate.bg-custom .back {
-    width: 100vw;
-    padding-left: -50px;
-    margin-left: -10px;
-    background: rgb(48, 237, 255);
+.nav {
+    margin-bottom: 0px;
     background: linear-gradient(60deg, rgba(48, 237, 255, 1) 0%, rgba(0, 117, 255, 1) 100%);
 }
 
+nav p {
+    padding-top: 5px;
+    font-size: 35px;
+    color: whitesmoke;
+}
+
+.mycard {
+    margin-left: 10px;
+    margin-right: 10px;
+    /* margin-bottom: 10px; */
+    background-color: #fff;
+    background-clip: border-box;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 0 0 0.5rem 0.5rem;
+    box-shadow: 0 4px 18px 0 rgba(0, 0, 0, 0.274), 0 7px 10px -5px rgba(0, 0, 0, 0.418);
+}
+
+.mybody {
+    flex: 1 1 auto;
+}
+
+.mycard .mybody {
+    padding: 0.9375rem 1.875rem;
+}
+
 #grid-container {
-    padding: 0px;
+    padding: 5px 5px 5px 5px;
 }
 
 #grid {

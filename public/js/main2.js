@@ -778,10 +778,10 @@ function gatherConfigDetails() {
     config.windowHeight = $(window).height();
     config.windowWidth = $(window).width();
     config.headerHeigth = $("#title").height() + 20;
-    config.gridContainerHeight = config.windowHeight - config.headerHeigth - 50;
+    config.gridContainerHeight = config.windowHeight - config.headerHeigth - 55;
     config.gridContainerWidth = $('#grid-container').width();
-    config.gridHeight = config.gridContainerHeight - 20
-    config.gridWidth = config.gridContainerWidth - 20
+    config.gridHeight = config.gridContainerHeight - $("#toolbar").height() - 10
+    config.gridWidth = config.gridContainerWidth - 10
     config.numberOfRows = Math.floor(config.gridHeight / config.nodeHeight);
     config.numberOfColumns = Math.floor(config.gridWidth / config.nodewidth) - 1;
     config.startPoint.x = Math.floor(config.numberOfRows * 0.50)
@@ -792,6 +792,7 @@ function gatherConfigDetails() {
     lastStart.y = config.startPoint.y;
     lastEnd.x = config.endPoint.x;
     lastEnd.y = config.endPoint.y;
+    console.log(config)
 }
 
 function createGrid() {
