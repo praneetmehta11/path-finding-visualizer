@@ -860,23 +860,6 @@ class RandomMaze {
     }
 }
 
-var isMouseDown = false
-var moveStart = false
-var moveEnd = false
-var lastStart = {
-    x: 0,
-    y: 0,
-};
-var lastEnd = {
-    x: 0,
-    y: 0,
-};
-var grid = [];
-var config = new Config();
-var algorithm = new Algorithm(grid);
-var isSolved = false
-var selectedAlgorithm = "bfs"
-var isWeighted = false
 
 function gatherConfigDetails() {
     config.windowHeight = $(window).height();
@@ -890,8 +873,8 @@ function gatherConfigDetails() {
     config.numberOfColumns = Math.floor(config.gridWidth / config.nodewidth) - 1;
     config.startPoint.x = Math.floor(config.numberOfRows * 0.50)
     config.endPoint.x = Math.floor(config.numberOfRows * 0.50)
-    config.startPoint.y = Math.floor(config.numberOfColumns * 0.25)
-    config.endPoint.y = Math.floor(config.numberOfColumns * 0.75)
+    config.startPoint.y = Math.floor(config.numberOfColumns * 0.30)
+    config.endPoint.y = Math.floor(config.numberOfColumns * 0.70)
     lastStart.x = config.startPoint.x;
     lastStart.y = config.startPoint.y;
     lastEnd.x = config.endPoint.x;
@@ -991,6 +974,7 @@ $(function() {
     gatherConfigDetails();
     init();
     $('#introModal').modal('show');
+
 });
 
 function generateMaze(algo) {
@@ -1016,7 +1000,6 @@ function solveMaze(startPoint = null, endPoint = null) {
             return
         }
         let animators = algorithm.execute(selectedAlgorithm, config.startPoint, config.endPoint);
-        console.log(config, "sa")
         animators[0].animateVisited(config.visitedAnimationSpeed).then((result) => {
             animators[1].animatePath(config.pathAnimationSpeed)
         })
@@ -1088,12 +1071,11 @@ function disable() {
 function enable() {
     $('button').attr('disabled', false);
     $('#slider').attr('disabled', false);
-
-
 }
 
 function setRandomWeight() {
     let btn = $("#weight")
+    clearPath()
     if (btn.attr('work') == 'add') {
         $("#weight").html("Remove Weight")
         isWeighted = true
@@ -1123,7 +1105,6 @@ function setRandomWeight() {
 function updateSpeed(val) {
     slider.set(val)
     val = Math.abs(val)
-    console.log(val, config)
     if (val == 1) {
         config.wallAnimationSpeed = 2
         config.visitedAnimationSpeed = 3
@@ -1149,6 +1130,24 @@ function updateSpeed(val) {
         config.visitedAnimationSpeed = 200
         config.pathAnimationSpeed = 400
     }
-
 }
+
+var isMouseDown = false
+var moveStart = false
+var moveEnd = false
+var lastStart = {
+    x: 0,
+    y: 0,
+};
+var lastEnd = {
+    x: 0,
+    y: 0,
+};
+var grid = [];
+var config = new Config();
+var algorithm = new Algorithm(grid);
+var isSolved = false
+var selectedAlgorithm = "bfs"
+var isWeighted = false
 var slider = document.getElementById('slider');
+window.history.replaceState("object or string", "Path Finding Visualizer", "/path-finding-visualizer");

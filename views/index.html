@@ -3,45 +3,33 @@
 
 <head>
     <title>Path Finding Visualizer</title>
-
-    <!-- Required meta tags -->
     <meta charset="utf-8">
-    <!-- <meta content="width=device-width, initial-scale=1.0" name="viewport" /> -->
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-    <link rel="icon" type="image/png" href="/icon.ico">
+    <!-- <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /> -->
+    <meta name="keywords" content="graph algorithms, path finding visualizer, visualizer, bfs, dfs, a*, astar, a star, dijkstra, swarn, best first search, algorithms">
+    <meta name="description" content="It visualizes various graph algorithms like Dijkstra's, A*, BFS and others with intutive animation.">
     <!--  Fonts and icons  -->
+    <link rel="icon" type="image/png" href="/icon.ico">
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:400,700|Material+Icons" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Sofia">
     <!-- Material Kit CSS -->
     <link href="/css/material-kit.min.css?v=2.0.4" rel="stylesheet" />
+    <!-- Custom css -->
     <link href="/css/main.css" rel="stylesheet" />
-
 </head>
 
 <body>
-
     <div class="card" style="margin-bottom: 8px;">
         <div class="card-header card-header-custom text-center" id="title">
             <p> Path Finding Visualizer </p>
             <div class="row d-flex justify-content-center">
-                <div>
-                    <button type="button" class="btn btn-custom" onclick="resetGrid()">Help</button>
-                </div>
-
-                <div>
-                    <div class="dropdown">
-                        <button class="btn btn-custom dropdown-toggle" type="button" data-toggle="dropdown" id="mazeDropbox">Maze Algorithms
-                                <span class="caret"></span>
-                            </button>
-                        <ul class="dropdown-menu">
-                            <li><a href="#" onclick="generateMaze('recursive')">Recursive Divison</a></li>
-                            <li><a href="#" onclick="generateMaze('random')">Random Maze</a></li>
-                        </ul>
-                    </div>
+                <div class="mr-3">
+                    <button type="button" class="btn btn-custom" onclick="$('#introModal').modal('show');">Help</button>
                 </div>
                 <div>
-                    <button type="button" class="btn btn-custom" onclick="resetGrid()">Clear Maze</button>
+                    <button type="button" class="btn btn-custom " onclick="generateMaze('recursive')">Generate Maze</button>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-custom ml-3" onclick="resetGrid()">Clear Maze</button>
                 </div>
 
                 <div class="ml-3">
@@ -56,12 +44,11 @@
                             <li><a href="#" onclick="selectAlgorithm('greedyBFS')">Greedy BFS</a></li>
                             <li><a href="#" onclick="selectAlgorithm('astar')">A *</a></li>
                             <li><a href="#" onclick="selectAlgorithm('swarn')">Swarn</a></li>
-
                         </ul>
                     </div>
                 </div>
                 <div>
-                    <button type="button" class="btn btn-custom" onclick="solveMaze()">Visualize</button>
+                    <button type="button" class="btn btn-custom ml-3" onclick="solveMaze()">Visualize</button>
                 </div>
 
 
@@ -84,6 +71,7 @@
             <table id="grid"></table>
         </div>
     </div>
+
     <div class="copyright text-center">
         &copy;
         <script>
@@ -91,13 +79,6 @@
         </script>, made with <i class="material-icons " style="font-size: 15px; ">favorite</i> by
         <a style="color: #1560bd;" href="https://www.linkedin.com/in/praneetmehta11/ " target="_blank ">Praneet Mehta</a> for the better visualization.
     </div>
-
-
-
-
-
-
-
 
     <!-- Intro Modal -->
     <div class="modal fade" id="introModal" tabindex="-1" role="dialog" aria-labelledby="introLabel" aria-hidden="true">
@@ -110,24 +91,20 @@
                 </div>
                 <div class="modal-body ">
                     <div class="text-center mb-4" style="margin: auto;">
-                        <img alt="Card image cap" class="modal-img" src="/maze.gif" height="180" />
+                        <img alt="Card image cap" class="modal-img" src="/maze1.gif" height="180" />
                     </div>
-
                     <div>
                         <ul>
-                            <li>Click & Drag on the grid cells to make walls OR select an algorithm form the drop-down menu to generte a maze.</li>
-                            <li>Click & Drag to change the Start and End positons as you like.</li>
+                            <li>Click & Drag on the grid cells to make walls OR click on GENERATE MAZE to generate a maze.</li>
+                            <li>Click & Drag to change the Start and End positions as you like.</li>
                         </ul>
-                        <p style="font-size: larger;">Don't forgot to select the Path Finding A lgorithm before you click on VISUALIZE to get started.</p>
-
-                        <p style="font-size: larger;">Additionally you can also,</p>
-
+                        <p style="font-size: larger;">Don't forget to select the Path Finding Algorithm before you click on VISUALIZE to get started.</p>
+                        <p style="font-size: larger;" class="mt-2">Additionally, you can also,</p>
                         <ul>
-                            <li>Adjust the aimation speed.</li>
+                            <li>Adjust the animation speed.</li>
                             <li>Click on ADD WEIGHT to populate the grid with random weights.</li>
                             <li>Drag Start and End positions to instantly generate a new path, even after the visualization is completed.</li>
                             <li>Click on CLEAR PATH or CLEAR MAZE to do what their name suggests.</li>
-
                         </ul>
                     </div>
                 </div>
@@ -138,32 +115,14 @@
         </div>
     </div>
 
-
-
-
-
-
-
-
-    <!-- <p class=text-center> ssfsf</p> -->
     <!--   Core JS Files   -->
     <script src="/js/core/jquery.min.js " type="text/javascript "></script>
     <script src="/js/core/popper.min.js " type="text/javascript "></script>
     <script src="/js/core/bootstrap-material-design.min.js " type="text/javascript "></script>
-    <script src="/js/plugins/moment.min.js "></script>
     <script src="/js/plugins/nouislider.min.js "></script>
-
-    <!-- Place this tag in your head or just before your close body tag. -->
-    <!-- <script async defer src="https://buttons.github.io/buttons.js "></script> -->
-    <!-- Control Center for Material Kit: parallax effects, scripts for the example pages etc -->
     <script src="/js/material-kit.min.js?v=2.0.4 " type="text/javascript "></script>
-
     <script src="/js/priorityQueue.js " type="text/javascript "></script>
     <script src="/js/main.js " type="text/javascript "></script>
-
-
-
-
 </body>
 
 </html>
