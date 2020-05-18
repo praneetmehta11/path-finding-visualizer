@@ -7,8 +7,8 @@ class Config {
         this.gridContainerWidth = 0;
         this.gridHeight = 0;
         this.gridWidth = 0;
-        this.nodeHeight = 25;
-        this.nodewidth = 25;
+        this.nodeHeight = 27;
+        this.nodewidth = 27;
         this.numberOfRows = 0;
         this.numberOfColumns = 0;
         this.minWeight = 1
@@ -21,9 +21,9 @@ class Config {
             x: 5,
             y: 13
         }
-        this.pathAnimationSpeed = 5
-        this.visitedAnimationSpeed = 20
-        this.wallAnimationSpeed = 60
+        this.wallAnimationSpeed = 3
+        this.visitedAnimationSpeed = 6
+        this.pathAnimationSpeed = 60
     }
 }
 class Node {
@@ -54,7 +54,7 @@ class Node {
         this.end = false
         this.previous = null;
         this.visited = false
-        this.weight = 1;
+            // this.weight = 1;
         this.distance = Infinity
         this.node.removeClass()
     }
@@ -62,7 +62,7 @@ class Node {
     resetForMove() {
         this.visited = false
         this.previous = null
-        this.weight = 1;
+            // this.weight = 1;
         this.distance = Infinity
         this.node.removeClass()
         this.reDraw()
@@ -81,26 +81,35 @@ class Node {
     }
 
 
-    reDraw() {
+    reDraw(val) {
         this.node.removeClass()
         if (this.end) {
             if (isSolved) {
                 this.node.addClass('path')
             }
             this.node.addClass('end')
+            this.node.html('')
             return
         }
         if (this.start) {
             if (isSolved) {
                 this.node.addClass('path')
             }
+            this.node.html('')
             this.node.addClass('start')
             return
         }
         if (this.isWall) {
+            this.node.html('')
             this.node.addClass('wall')
             return
+        } else if (val) {
+            this.node.html("")
+        } else {
+            if (isWeighted)
+                this.node.html(this.weight)
         }
+
     }
 
     configureNode() {
@@ -199,7 +208,11 @@ class Node {
                 oldNode.reset();
                 solveMaze({ x: this.x, y: this.y }, config.endPoint)
                 this.node.removeClass()
+                if (isSolved) {
+                    this.node.addClass("path")
+                }
                 this.node.addClass('start');
+                this.node.html("")
                 return;
             }
             if (moveEnd) {
@@ -209,7 +222,11 @@ class Node {
                 oldNode.reset();
                 solveMaze(config.startPoint, { x: this.x, y: this.y })
                 this.node.removeClass()
+                if (isSolved) {
+                    this.node.addClass("path")
+                }
                 this.node.addClass('end');
+                this.node.html("")
                 return;
             }
             if (!this.isWall) {
@@ -242,10 +259,14 @@ class Node {
         if (this.start || this.end) return
         this.node.removeClass()
         this.node.addClass('wall')
+        if (!Animator.isRunning)
+            this.node.addClass('scale-up-center')
+
     }
 
     removeWall() {
         if (this.start || this.end) return
+        if (isWeighted) this.node.html(this.weight)
         this.node.removeClass()
     }
 
@@ -254,6 +275,8 @@ class Node {
         if (this.start) {
             this.node.addClass('start')
         }
+        if (this.end)
+            this.node.addClass('end')
         this.node.addClass('visited')
     }
 
@@ -352,7 +375,7 @@ class Animator {
                 setTimeout(() => {
                     if (!Animator.isRunning) return
                     node.highlightPath()
-                    node.node.addClass("scale-up-center");
+                    node.node.addClass("path-animation");
                     res();
                 }, speed * i);
             })
@@ -489,7 +512,7 @@ class Algorithm {
         })
         let R = [-1, 0, 1, 0];
         let C = [0, -1, 0, 1];
-        let current, x, y, next
+        let current, x, y, next, newWeight
         while (!queue.isEmpty()) {
             current = queue.pop()
             if (current.node.visited) continue
@@ -502,11 +525,12 @@ class Algorithm {
                 if (this.isValid(x, y)) {
                     next = this.grid[x][y]
                     if (!next.visited && !next.isWall) {
-                        if ((current.node.distance + next.weight) < next.distance) {
+                        newWeight = (current.node.distance + next.weight)
+                        if (next.distance > newWeight) {
                             next.previous = current.node;
-                            next.distance = (current.node.distance + next.weight);
+                            next.distance = newWeight;
                             queue.push({
-                                weight: next.distance,
+                                weight: newWeight,
                                 node: next
                             })
                         }
@@ -582,6 +606,63 @@ class Algorithm {
         return [seachAnimator, pathAnimator]
     }
 
+    bestFirstSearchWeighted(src, dest, heuristics) {
+        var seachAnimator = new Animator();
+        let queue = new PriorityQueue((a, b) => a.weight < b.weight)
+        src.distance = 0
+        queue.push({
+            weight: heuristics(src, src, dest),
+            node: src,
+            old: heuristics(src, src, dest)
+        })
+        let R = [-1, 0, 1, 0];
+        let C = [0, -1, 0, 1];
+        let current, x, y, next, currentHeuristic, newWeight
+        while (!queue.isEmpty()) {
+            current = queue.pop()
+            if (current.node.visited) continue
+            current.node.visited = true
+            seachAnimator.push(current.node);
+            if (current.node.x == dest.x && current.node.y == dest.y) break
+            currentHeuristic = heuristics(current, src, dest)
+            for (let i = 0; i < 4; ++i) {
+                x = current.node.x + R[i]
+                y = current.node.y + C[i]
+                if (this.isValid(x, y)) {
+                    next = this.grid[x][y]
+                    if (!next.visited && !next.isWall) {
+                        newWeight = (next.weight + current.old)
+                        if (next.distance > newWeight) {
+                            next.previous = current.node;
+                            next.distance = newWeight;
+                            queue.push({
+                                weight: newWeight + heuristics(next, src, dest),
+                                node: next,
+                                old: newWeight
+                            })
+                        }
+                    }
+                }
+            }
+        }
+        let path = [dest]
+        let node
+        let pathAnimator = new Animator();
+        if (dest.visited) {
+            node = dest.previous;
+            while (node.previous) {
+                path.push(node);
+                node = node.previous;
+            }
+            path.push(src)
+            path.reverse();
+            path.forEach((node) => {
+                pathAnimator.push(node);
+            })
+        }
+        return [seachAnimator, pathAnimator]
+    }
+
     greedyBFSHeuristics(current, src, dest) {
         return Math.abs(current.x - dest.x) + Math.abs(current.y - dest.y)
     }
@@ -589,7 +670,10 @@ class Algorithm {
     greedyBFS(startPoint, endPoint) {
         let src = this.grid[startPoint.x][startPoint.y]
         let dest = this.grid[endPoint.x][endPoint.y]
-        return this.bestFirstSearch(src, dest, this.greedyBFSHeuristics)
+        if (isWeighted)
+            return this.bestFirstSearchWeighted(src, dest, this.greedyBFSHeuristics)
+        else
+            return this.bestFirstSearch(src, dest, this.greedyBFSHeuristics)
     }
 
     astarHeuristics(current, src, dest) {
@@ -597,9 +681,13 @@ class Algorithm {
     }
 
     astar(startPoint, endPoint) {
+        // alert(isWeighted)
         let src = this.grid[startPoint.x][startPoint.y]
         let dest = this.grid[endPoint.x][endPoint.y]
-        return this.bestFirstSearch(src, dest, this.astarHeuristics)
+        if (isWeighted)
+            return this.bestFirstSearch(src, dest, this.astarHeuristics)
+        else
+            return this.bestFirstSearchWeighted(src, dest, this.astarHeuristics)
     }
 
     swarn(startPoint, endPoint) {
@@ -775,7 +863,8 @@ var grid = [];
 var config = new Config();
 var algorithm = new Algorithm(grid);
 var isSolved = false
-var selectedAlgorithm = null
+var selectedAlgorithm = "bfs"
+var isWeighted = false
 
 function gatherConfigDetails() {
     config.windowHeight = $(window).height();
@@ -818,6 +907,7 @@ function createGrid() {
 
 function resetGrid() {
     Animator.stopAllAnimation();
+    isSolved = false
     for (let i = 0; i < config.numberOfRows; ++i) {
         for (let j = 0; j < config.numberOfColumns; ++j) {
             let node = grid[i][j];
@@ -834,7 +924,7 @@ function resetGrid() {
     isMouseDown = false
     moveStart = false
     moveEnd = false
-    isSolved = false
+
 
 }
 
@@ -888,6 +978,7 @@ function init() {
 $(function() {
     gatherConfigDetails();
     init();
+    $('#introModal').modal('show');
 });
 
 function generateMaze(algo) {
@@ -954,12 +1045,26 @@ function solveMaze(startPoint = null, endPoint = null) {
 
 function selectAlgorithm(algo) {
     selectedAlgorithm = algo;
-    if (algo == 'bfs') $("#algorithmDropbox").html(`Algorithm : BFS <span class="caret"></span>`)
-    if (algo == 'dfs') $("#algorithmDropbox").html(`Algorithm : DFS <span class="caret"></span>`)
-    if (algo == 'dijkstra') $("#algorithmDropbox").html(`Algorithm : Dijkstra's <span class="caret"></span>`)
-    if (algo == 'greedyBFS') $("#algorithmDropbox").html(`Algorithm : Greedy BFS <span class="caret"></span>`)
-    if (algo == 'astar') $("#algorithmDropbox").html(`Algorithm : A * <span class="caret"></span>`)
-    if (algo == 'swarn') $("#algorithmDropbox").html(`Algorithm : Swarn <span class="caret"></span>`)
+    if (algo == 'bfs') {
+        if (isWeighted) setRandomWeight()
+        $("#algorithmDropbox").html(`Algorithm : BFS <span class="caret"></span>`)
+    }
+    if (algo == 'dfs') {
+        if (isWeighted) setRandomWeight()
+        $("#algorithmDropbox").html(`Algorithm : DFS <span class="caret"></span>`)
+    }
+    if (algo == 'dijkstra') {
+        $("#algorithmDropbox").html(`Algorithm : Dijkstra's <span class="caret"></span>`)
+    }
+    if (algo == 'greedyBFS') {
+        $("#algorithmDropbox").html(`Algorithm : Greedy BFS <span class="caret"></span>`)
+    }
+    if (algo == 'astar') {
+        $("#algorithmDropbox").html(`Algorithm : A * <span class="caret"></span>`)
+    }
+    if (algo == 'swarn') {
+        $("#algorithmDropbox").html(`Algorithm : Swarn <span class="caret"></span>`)
+    }
 }
 
 function disable() {
@@ -979,6 +1084,7 @@ function setRandomWeight() {
     let btn = $("#weight")
     if (btn.attr('work') == 'add') {
         $("#weight").html("Remove Weight")
+        isWeighted = true
         btn.attr('work', "remove")
         let node
         for (let i = 0; i < config.numberOfRows; ++i) {
@@ -989,6 +1095,8 @@ function setRandomWeight() {
         }
     } else {
         $("#weight").html("Add Weight")
+        isWeighted = false
+
         btn.attr('work', "add")
         let node
         for (let i = 0; i < config.numberOfRows; ++i) {
@@ -1005,29 +1113,29 @@ function updateSpeed(val) {
     val = Math.abs(val)
     console.log(val, config)
     if (val == 1) {
-        config.wallAnimationSpeed = 0
-        config.visitedAnimationSpeed = 1
-        config.pathAnimationSpeed = 5
+        config.wallAnimationSpeed = 2
+        config.visitedAnimationSpeed = 3
+        config.pathAnimationSpeed = 6
     }
     if (val == 2) {
-        config.wallAnimationSpeed = 5
-        config.visitedAnimationSpeed = 20
+        config.wallAnimationSpeed = 3
+        config.visitedAnimationSpeed = 6
         config.pathAnimationSpeed = 60
     }
     if (val == 3) {
-        config.wallAnimationSpeed = 100
-        config.visitedAnimationSpeed = 50
-        config.pathAnimationSpeed = 150
+        config.wallAnimationSpeed = 25
+        config.visitedAnimationSpeed = 30
+        config.pathAnimationSpeed = 100
     }
     if (val == 4) {
-        config.wallAnimationSpeed = 200
-        config.visitedAnimationSpeed = 300
-        config.pathAnimationSpeed = 400
+        config.wallAnimationSpeed = 50
+        config.visitedAnimationSpeed = 100
+        config.pathAnimationSpeed = 200
     }
     if (val == 5) {
-        config.wallAnimationSpeed = 300
-        config.visitedAnimationSpeed = 350
-        config.pathAnimationSpeed = 500
+        config.wallAnimationSpeed = 60
+        config.visitedAnimationSpeed = 200
+        config.pathAnimationSpeed = 400
     }
 
 }
