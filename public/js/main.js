@@ -103,13 +103,17 @@ class Node {
             this.node.html('')
             this.node.addClass('wall')
             return
-        } else if (val) {
-            this.node.html("")
         } else {
-            if (isWeighted)
-                this.node.html(this.weight)
+            if (isSolved && this.visited) {
+                // this.node.addClass('visited')
+            }
+            if (val) {
+                this.node.html("")
+            } else {
+                if (isWeighted)
+                    this.node.html(this.weight)
+            }
         }
-
     }
 
     configureNode() {
@@ -158,40 +162,46 @@ class Node {
     }
 
     mouseup(node) {
-        if (moveStart) {
-            if (this.end) {
-                var oldX = lastStart.x;
-                var oldY = lastStart.y;
-                var oldNode = grid[oldX][oldY];
-                oldNode.reset();
-                oldNode.start = true;
-                oldNode.reDraw();
-                config.startPoint.x = oldX;
-                config.startPoint.y = oldY;
-            } else {
-                this.start = true;
-                config.startPoint.x = this.x;
-                config.startPoint.y = this.y;
+        if (isMouseDown) {
+            if (moveStart) {
+                if (this.end) {
+                    var oldX = lastStart.x;
+                    var oldY = lastStart.y;
+                    var oldNode = grid[oldX][oldY];
+                    oldNode.reset();
+                    oldNode.start = true;
+                    oldNode.reDraw();
+                    config.startPoint.x = oldX;
+                    config.startPoint.y = oldY;
+                    this.start = false
+                } else {
+                    this.start = true;
+                    config.startPoint.x = this.x;
+                    config.startPoint.y = this.y;
+                    // lastStart.x = this.x
+                    //lastStart.y = this.y
+                }
+                afterMove()
+                return;
             }
-            return;
-        }
-
-        if (moveEnd) {
-            if (this.start) {
-                var oldX = lastEnd.x;
-                var oldY = lastEnd.y;
-                var oldNode = grid[oldX][oldY];
-                oldNode.reset();
-                oldNode.end = true;
-                oldNode.reDraw();
-                config.startPoint.x = oldX;
-                config.startPoint.y = oldY;
-            } else {
-                this.end = true;
-                config.endPoint.x = this.x;
-                config.endPoint.y = this.y;
+            if (moveEnd) {
+                if (this.start) {
+                    var oldX = lastEnd.x;
+                    var oldY = lastEnd.y;
+                    var oldNode = grid[oldX][oldY];
+                    oldNode.reset();
+                    oldNode.end = true;
+                    oldNode.reDraw();
+                    config.endPoint.x = oldX;
+                    config.endPoint.y = oldY;
+                } else {
+                    this.end = true;
+                    config.endPoint.x = this.x;
+                    config.endPoint.y = this.y;
+                }
+                afterMove()
+                return;
             }
-            return;
         }
         isMouseDown = false
         moveStart = false
@@ -199,7 +209,9 @@ class Node {
     }
 
     mouseenter(node) {
-        if (this.start || this.end) return;
+        if (this.start || this.end) {
+            return
+        }
         if (isMouseDown) {
             if (moveStart) {
                 var oldX = config.startPoint.x;
@@ -936,6 +948,28 @@ function clearPath() {
     moveStart = false
     moveEnd = false
     isSolved = false
+}
+
+function afterMove() {
+    Animator.stopAllAnimation();
+    for (let i = 0; i < config.numberOfRows; ++i) {
+        for (let j = 0; j < config.numberOfColumns; ++j) {
+            let node = grid[i][j];
+            node.start = false
+            node.end = false
+            node.node.removeClass("start");
+            node.node.removeClass("end");
+
+            if (node.x == config.startPoint.x && node.y == config.startPoint.y) {
+                node.start = true;
+                node.node.addClass('start');
+            }
+            if (node.x == config.endPoint.x && node.y == config.endPoint.y) {
+                node.end = true;
+                node.node.addClass('end');
+            }
+        }
+    }
 }
 
 function init() {
