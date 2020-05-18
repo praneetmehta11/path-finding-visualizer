@@ -701,7 +701,19 @@ class Algorithm {
                 current.weight += heuristic
             }
         }
-        return this.dijkstra(startPoint, endPoint)
+        var data = this.dijkstra(startPoint, endPoint)
+        for (let i = 0; i < this.height; ++i) {
+            for (let j = 0; j < this.width; ++j) {
+                current = grid[i][j]
+                heuristic = Math.abs(current.x - dest.x) + Math.abs(current.y - dest.y) + Math.abs(current.x - src.x) + Math.abs(src.y - dest.y) / 2
+                current.weight = 1
+                if (isWeighted)
+                    current.setRandomWeight()
+                else
+                    current.weight = 1
+            }
+        }
+        return data
     }
 
     execute(algo, startPoint, endPoint) {

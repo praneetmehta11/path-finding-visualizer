@@ -26,6 +26,10 @@
             <p> Path Finding Visualizer </p>
             <div class="row d-flex justify-content-center">
                 <div>
+                    <button type="button" class="btn btn-custom" onclick="resetGrid()">Help</button>
+                </div>
+
+                <div>
                     <div class="dropdown">
                         <button class="btn btn-custom dropdown-toggle" type="button" data-toggle="dropdown" id="mazeDropbox">Maze Algorithms
                                 <span class="caret"></span>
@@ -101,32 +105,31 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <div style="width: 100%; font-size: 24px; ">
-                        <p class="modal-title text-center" id="introLabel" style="font-size: larger;">Welcome to Path Finding Visulaizer</p>
+                        <p class="modal-title text-center" id="introLabel" style="font-size: larger;">Welcome to Path Finding Visualizer</p>
                     </div>
                 </div>
                 <div class="modal-body ">
-                    <!-- This Visualizer visulizes various types of path Finding Algorithms -->
                     <div class="text-center mb-4" style="margin: auto;">
                         <img alt="Card image cap" class="modal-img" src="/maze.gif" height="180" />
                     </div>
 
                     <div>
                         <ul>
-                            <li>You can add walls by clicking on the grid cell.</li>
-                            <li>You can also generate mazes and patterns by selecting them from the "MAZE ALGORITHMS" drop-down menu.</li>
-                            <li>You can click and drag start and end points to move them inside the grid.</li>
-                            <li>You can drag start and end points even after the algorithm visulaization is completed. This will allow you to see new path instantly.</li>
-                            <li>You can click on "ADD WEIGHT" button to add random weights.</li>
-                            <li>To clear path after visualization you can click on "CLEAR PATH" button.</li>
-                            <li>To clear the whole maze you can click on "CLEAR MAZE" button.</li>
-                            <li>You can select different algorithm from the "ALGORITHM" drop-down menu.</li>
-                            <li>To change spped of the aimation slide speed bar to left and to increase do opposite.</li>
-                            <li>And after all this to see the real magic click on "VISULIZE" button to start visualization.</li>
+                            <li>Click & Drag on the grid cells to make walls OR select an algorithm form the drop-down menu to generte a maze.</li>
+                            <li>Click & Drag to change the Start and End positons as you like.</li>
+                        </ul>
+                        <p style="font-size: larger;">Don't forgot to select the Path Finding A lgorithm before you click on VISUALIZE to get started.</p>
+
+                        <p style="font-size: larger;">Additionally you can also,</p>
+
+                        <ul>
+                            <li>Adjust the aimation speed.</li>
+                            <li>Click on ADD WEIGHT to populate the grid with random weights.</li>
+                            <li>Drag Start and End positions to instantly generate a new path, even after the visualization is completed.</li>
+                            <li>Click on CLEAR PATH or CLEAR MAZE to do what their name suggests.</li>
+
                         </ul>
                     </div>
-                    <!-- <div class="row">
-                        Note: Hover over points to see demo.
-                    </div> -->
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
