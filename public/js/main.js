@@ -1030,7 +1030,7 @@ function solveMaze(startPoint = null, endPoint = null) {
     if (startPoint == null && endPoint == null) {
         if (isSolved) clearPath()
         if (!selectedAlgorithm) {
-            alert("Bhaiya algorithm to select karlo yar tum pehle");
+            alert("Select the algorithm first.");
             return
         }
         let animators = algorithm.execute(selectedAlgorithm, config.startPoint, config.endPoint);
